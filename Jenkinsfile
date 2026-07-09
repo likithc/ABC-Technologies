@@ -32,7 +32,7 @@ pipeline {
             steps {
                 // Authenticates using the -Dsonar.login property for version compatibility
                 // REPLACE 'YOUR_SONARQUBE_TOKEN' with the key you copied from your dashboard
-                sh 'mvn sonar:sonar -Dsonar.host.url=http://3.238.143.114:9000 -Dsonar.login=YOUR_SONAR_TOKEN_HERE'
+                sh 'mvn sonar:sonar -Dsonar.host.url=http://3.238.143.114:9000 -Dsonar.login=squ_43b1121948dee80ce5f3bd934b0db02f6e19c00d'
             }
         }
 

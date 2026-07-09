@@ -26,7 +26,6 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                // Bypassing the authentication issue to allow deployment to proceed
                 echo 'Skipping SonarQube metrics collection step...'
             }
         }
@@ -39,15 +38,17 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t springboot-app:latest .'
+                // Using absolute path forcing to locate the host Docker runtime execution block
+                // If this still fails, we will explicitly add the environment PATH to this command
+                sh '/usr/bin/docker build -t springboot-app:latest .'
             }
         }
 
         stage('Deploy Container') {
             steps {
                 echo 'Deploying application container on port 8081...'
-                sh 'docker rm -f springboot-container || true'
-                sh 'docker run -d -p 8081:8080 --name springboot-container springboot-app:latest'
+                sh '/usr/bin/docker rm -f springboot-container || true'
+                sh '/usr/bin/docker run -d -p 8081:8080 --name springboot-container springboot-app:latest'
             }
         }
     }

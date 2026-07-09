@@ -2,50 +2,50 @@ pipeline {
     agent any
 
     tools {
-        // Ensures Maven is available. Name must match Jenkins Global Tool Configuration.
+        // Ensures Maven 3.x is available from your Jenkins Global Tool Configuration
         maven 'Maven3' 
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Pulls the latest code from your GitHub repository
+                // Pulls the latest project repository code from GitHub
                 checkout scm
             }
         }
 
         stage('Clean & Compile') {
             steps {
-                // Cleans old build artifacts and compiles Java classes
+                // Prepares the target workspace and compiles your Java sources
                 sh 'mvn clean compile'
             }
         }
 
         stage('Test') {
             steps {
-                // Executes existing unit tests provided by developers
+                // Executes the developer-written unit tests
                 sh 'mvn test'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Authenticates and sends quality metrics to your running SonarQube container
-                // REPLACE 'YOUR_SONAR_TOKEN_HERE' with the token you generated in SonarQube
-                sh 'mvn sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=YOUR_SONAR_TOKEN_HERE'
+                // Authenticates using the -Dsonar.login property for version compatibility
+                // REPLACE 'YOUR_SONARQUBE_TOKEN' with the key you copied from your dashboard
+                sh 'mvn sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=squ_43b1121948dee80ce5f3bd934b0db02f6e19c00d'
             }
         }
 
         stage('Package') {
             steps {
-                // Packages the compiled code into 'target/student.jar', skipping test re-execution
+                // Compiles and builds the production jar file while skipping test re-execution
                 sh 'mvn package -DskipTests'
             }
         }
 
         stage('Docker Build') {
             steps {
-                // Builds the container image using the Dockerfile in the root workspace
+                // Packages your application into a Docker image using your Dockerfile
                 sh 'docker build -t abc-tech-app:${BUILD_NUMBER} .'
             }
         }
@@ -53,17 +53,17 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying application container...'
-                // Safely stops and removes any previously running container to avoid port conflicts
+                // Removes old iterations of the application container to free up the host port
                 sh 'docker rm -f abc-app-container || true'
-                // Spins up the newly built container on port 8080
+                // Spins up the new image build on port 8080
                 sh 'docker run -d -p 8080:8080 --name abc-app-container abc-tech-app:${BUILD_NUMBER}'
             }
         }
     }
-    
+
     post {
         always {
-            // Cleans up the Jenkins workspace directory to preserve disk space
+            // Cleans up the workspace on the Jenkins agent to save disk space
             cleanWs()
         }
     }

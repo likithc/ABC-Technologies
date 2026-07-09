@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     tools {
-        // Fixed: Matches your server's configured tool name
         maven 'Maven3' 
     }
 
@@ -27,10 +26,9 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                // The environment configuration is properly wrapped directly inside the step here
-                withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar'
-                }
+                // Bypass the Jenkins system tool configuration entirely using direct properties
+                // Replace the host URL if your SonarQube server runs on a different port or IP
+                sh 'mvn sonar:sonar -Dsonar.host.url=http://localhost:9000'
             }
         }
 
